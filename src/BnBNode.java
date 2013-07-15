@@ -14,7 +14,7 @@ public class BnBNode {
     int val;
     int availableCapacity;
     int potentialVal;
-    ArrayList <BnBNode> branches;
+    int branchOn;
     
     
     BnBNode(int numItems)
@@ -25,7 +25,6 @@ public class BnBNode {
     		path[numItems] = -1;
     		numItems--;
     	}
-    	branches = new ArrayList <BnBNode> (0);
     	searchState = -1;
     	val = 0; 
     }

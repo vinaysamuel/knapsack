@@ -23,7 +23,34 @@ public class BranchNBondSolver {
 	
 	
 	int chooseBranch(BnBNode thisNode){
+		int node;
+		int i;
+		
+		node = -1;
+		i = 0;
+		if (thisNode.searchState < 0){
+			while(node <0 )
+			{
+				if (thisNode.path[i] == -1)
+					node = -1;
+				else
+					node = i;
+				i++;
+			}
+		}
+		
+		if (node == -1)
+			return -1;
+		
+		node = node<<1;
 		thisNode.searchState++;
+		if (thisNode.searchState == 0)
+			return node;
+		else if (thisNode.searchState == 1)
+			return (node|1);
+		else if ((thisNode.searchState > 1)||(thisNode.searchState < 0))
+			return -1;
+		
 		return thisNode.searchState; 
 	}
 
@@ -68,9 +95,10 @@ public class BranchNBondSolver {
 		nextBranch = chooseBranch(thisNode);
 		while (nextBranch >=0)
 		{
+		   BnBNode returnNode = new BnBNode(items.size());
 		   BnBNode nextNode = new BnBNode (items.size());
 		   updateNode (thisNode, nextNode, nextBranch);
-		// return_node =  traverse tree
+		// check constraints
 		// check if node should be stored - if true push into branches
 		}
 		//return best node
