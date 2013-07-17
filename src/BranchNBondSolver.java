@@ -1,5 +1,3 @@
-import java.util.ArrayList;
-
 /**
  * 
  */
@@ -20,7 +18,6 @@ public class BranchNBondSolver {
 		maxCapacity = capacity;
 		itemsPicked = new int [numItems];
 	}
-	
 	
 	int chooseBranch(BnBNode thisNode){
 		int node;
@@ -89,27 +86,62 @@ public class BranchNBondSolver {
 		 nextNode.val = thisNode.val + (nextBranch&0x1) * items.get((nextBranch>>1)).value;
 	}
 	
+	int constraintCheck(BnBNode parent, BnBNode node, int branch){
+		if (node.availableCapacity<=0)
+			return 0;
+		
+		if (parent.branch[~branch] == null){
+			return 1;
+		}
+		else if ((parent.branch[~branch].potentialVal > node.potentialVal)||(parent.branch[~branch].val > node.potentialVal)){
+			return 0;
+		}
+		else {
+			return 1;
+		}
+			
+	}
+	
 	BnBNode traverseTree(BnBNode thisNode)
 	{
 		int nextBranch;
 		nextBranch = chooseBranch(thisNode);
 		while (nextBranch >=0)
 		{
-		   BnBNode returnNode = new BnBNode(items.size());
 		   BnBNode nextNode = new BnBNode (items.size());
 		   updateNode (thisNode, nextNode, nextBranch);
-		// check constraints
-		// check if node should be stored - if true push into branches
+		   if (constraintCheck(thisNode,nextNode,nextBranch) != 0) 
+			   traverseTree(nextNode);
+		   
+		   thisNode.branch[nextBranch] = nextNode;
+		   nextBranch = chooseBranch(thisNode);
 		}
-		//return best node
+		if (thisNode.branch[0].availableCapacity < 0 ){
+			thisNode = thisNode.branch[1];
+		}
+		else if (thisNode.branch[1].availableCapacity < 0 ){
+			thisNode = thisNode.branch[0];
+		} 
+		else if (thisNode.branch[1].potentialVal > thisNode.branch[0].potentialVal){
+			thisNode = thisNode.branch[1];
+		}
+		else{
+			thisNode = thisNode.branch[0];
+		}
+			
+		return thisNode;
+
 	}
 	
 	void solve(Items itemList)
 	{
 		BnBNode firstNode;
+		BnBNode optNode;
 		items = itemList;
 		firstNode = getFirstNode();
-		traverseTree (firstNode);
-		
+		optNode = traverseTree (firstNode);
+		optValue = optNode.val;
+		optVerified = 0;
+		itemsPicked = optNode.path;
 	}
 }

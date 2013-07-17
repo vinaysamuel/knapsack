@@ -1,5 +1,3 @@
-import java.util.ArrayList;
-
 /**
  * 
  */
@@ -14,8 +12,7 @@ public class BnBNode {
     int val;
     int availableCapacity;
     int potentialVal;
-    int branchOn;
-    
+    BnBNode [] branch;
     
     BnBNode(int numItems)
     {
@@ -27,6 +24,7 @@ public class BnBNode {
     	}
     	searchState = -1;
     	val = 0; 
+    	
     }
     
 }
