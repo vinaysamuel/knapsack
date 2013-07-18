@@ -26,12 +26,12 @@ public class BranchNBondSolver {
 		node = -1;
 		i = 0;
 		if (thisNode.searchState < 0){
-			while(node <0 )
+			while((node < 0 ) && (i<thisNode.path.length))
 			{
 				if (thisNode.path[i] == -1)
-					node = -1;
-				else
 					node = i;
+				else
+					node = -1;
 				i++;
 			}
 		}
@@ -67,7 +67,7 @@ public class BranchNBondSolver {
 		int idx = 0;
 		nextNode.path = thisNode.path;
 		nextNode.path[nextBranch>>1] = nextBranch&0x1;
-		nextNode.availableCapacity -= (nextBranch&0x1)*items.get((nextBranch>>1)).weight;
+		nextNode.availableCapacity =thisNode.availableCapacity - (nextBranch&0x1)*items.get((nextBranch>>1)).weight;
 		nextNode.potentialVal = 0;
 		for (Item thisItem: items.itemList){
 			if (nextNode.path[idx] == 1){
@@ -89,8 +89,10 @@ public class BranchNBondSolver {
 	int constraintCheck(BnBNode parent, BnBNode node, int branch){
 		if (node.availableCapacity<=0)
 			return 0;
-		
-		if (parent.branch[~branch] == null){
+		if (parent.branch == null){
+			return 1;
+		}
+		else if (parent.branch[~branch] == null){
 			return 1;
 		}
 		else if ((parent.branch[~branch].potentialVal > node.potentialVal)||(parent.branch[~branch].val > node.potentialVal)){

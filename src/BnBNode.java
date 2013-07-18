@@ -17,14 +17,15 @@ public class BnBNode {
     BnBNode(int numItems)
     {
     	path = new int [numItems];
-    	while (numItems > 0)
+    	numItems--;
+    	while (numItems >= 0)
     	{
     		path[numItems] = -1;
     		numItems--;
     	}
     	searchState = -1;
     	val = 0; 
-    	
+
     }
     
 }
