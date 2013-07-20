@@ -19,11 +19,11 @@ public class BranchNBondSolver {
 		itemsPicked = new int [numItems];
 	}
 	
-	int chooseBranch(BnBNode thisNode){
-		int node;
+	int chooseBranch(BnBNode thisNode, int nextBranch){
 		int i;
+		int node;
 		
-		node = -1;
+		node = nextBranch>>1;
 		i = 0;
 		if (thisNode.searchState < 0){
 			while((node < 0 ) && (i<thisNode.path.length))
@@ -89,13 +89,13 @@ public class BranchNBondSolver {
 	int constraintCheck(BnBNode parent, BnBNode node, int branch){
 		if (node.availableCapacity<=0)
 			return 0;
-		if (parent.branch == null){
+		if (parent.branch.size() ==  0){
 			return 1;
 		}
-		else if (parent.branch[~branch] == null){
+		else if (parent.branch.size() == 1){
 			return 1;
 		}
-		else if ((parent.branch[~branch].potentialVal > node.potentialVal)||(parent.branch[~branch].val > node.potentialVal)){
+		else if ((parent.branch.get(~branch).potentialVal > node.potentialVal)||(parent.branch.get(~branch).val > node.potentialVal)){
 			return 0;
 		}
 		else {
@@ -107,28 +107,32 @@ public class BranchNBondSolver {
 	BnBNode traverseTree(BnBNode thisNode)
 	{
 		int nextBranch;
-		nextBranch = chooseBranch(thisNode);
+		nextBranch = -1;
+		nextBranch = chooseBranch(thisNode, nextBranch);
 		while (nextBranch >=0)
 		{
 		   BnBNode nextNode = new BnBNode (items.size());
 		   updateNode (thisNode, nextNode, nextBranch);
 		   if (constraintCheck(thisNode,nextNode,nextBranch) != 0) 
-			   traverseTree(nextNode);
+			   nextNode = traverseTree(nextNode);
 		   
-		   thisNode.branch[nextBranch] = nextNode;
-		   nextBranch = chooseBranch(thisNode);
+		   thisNode.branch.add(nextNode);
+		   nextBranch = chooseBranch(thisNode, nextBranch);
 		}
-		if (thisNode.branch[0].availableCapacity < 0 ){
-			thisNode = thisNode.branch[1];
+		if (thisNode.searchState == -1){
+			
 		}
-		else if (thisNode.branch[1].availableCapacity < 0 ){
-			thisNode = thisNode.branch[0];
+		else if (thisNode.branch.get(0).availableCapacity < 0 ){
+			thisNode = thisNode.branch.get(1);
+		}
+		else if (thisNode.branch.get(1).availableCapacity < 0 ){
+			thisNode = thisNode.branch.get(0);
 		} 
-		else if (thisNode.branch[1].potentialVal > thisNode.branch[0].potentialVal){
-			thisNode = thisNode.branch[1];
+		else if (thisNode.branch.get(1).potentialVal > thisNode.branch.get(0).potentialVal){
+			thisNode = thisNode.branch.get(1);
 		}
 		else{
-			thisNode = thisNode.branch[0];
+			thisNode = thisNode.branch.get(0);
 		}
 			
 		return thisNode;
