@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 /**
  * 
  */
@@ -12,43 +14,35 @@ public class BranchNBondSolver {
 	int [] itemsPicked;
 	int maxCapacity;
 	Items items;
+	ArrayList <BnBNode> nodes;
 	
 	BranchNBondSolver(int capacity,int numItems)
 	{
 		maxCapacity = capacity;
 		itemsPicked = new int [numItems];
+		nodes = new ArrayList <BnBNode> (0);
 	}
 	
-	int chooseBranch(BnBNode thisNode, int nextBranch){
+	int chooseBranch(BnBNode thisNode){
 		int i;
 		int node;
 		
-		node = nextBranch>>1;
 		i = 0;
-		if (thisNode.searchState < 0){
-			while((node < 0 ) && (i<thisNode.path.length))
-			{
-				if (thisNode.path[i] == -1)
-					node = i;
-				else
-					node = -1;
-				i++;
-			}
+		node = -1;
+		
+		while((node < 0 ) && (i<thisNode.path.length))
+		{
+			if (thisNode.path[i] == -1)
+				node = i;
+			else
+				node = -1;
+			i++;
 		}
 		
 		if (node == -1)
 			return -1;
+		return node;
 		
-		node = node<<1;
-		thisNode.searchState++;
-		if (thisNode.searchState == 0)
-			return node;
-		else if (thisNode.searchState == 1)
-			return (node|1);
-		else if ((thisNode.searchState > 1)||(thisNode.searchState < 0))
-			return -1;
-		
-		return thisNode.searchState; 
 	}
 
 	BnBNode getFirstNode()
@@ -62,79 +56,78 @@ public class BranchNBondSolver {
 		return firstNode;
 	}
 	
-	void updateNode(BnBNode thisNode, BnBNode nextNode, int nextBranch)
-	{
-		int idx = 0;
-		nextNode.path = thisNode.path;
-		nextNode.path[nextBranch>>1] = nextBranch&0x1;
-		nextNode.availableCapacity =thisNode.availableCapacity - (nextBranch&0x1)*items.get((nextBranch>>1)).weight;
-		nextNode.potentialVal = 0;
-		for (Item thisItem: items.itemList){
-			if (nextNode.path[idx] == 1){
-				   nextNode.potentialVal += thisItem.value; 
+    void iterateOneStep(BnBNode thisNode, int next_path){
+		BnBNode [] branch;
+		
+		branch = new BnBNode [2];
+	
+		//item not picked
+		branch[0] = new BnBNode(items.size());
+		branch[0].availableCapacity = thisNode.availableCapacity;
+		branch[0].path = thisNode.path;
+		branch[0].path[next_path] = 0;
+		branch[0].val = thisNode.val;
+		//item picked
+		branch[1] = new BnBNode(items.size());
+		branch[1].availableCapacity = thisNode.availableCapacity - items.get(next_path).weight;
+		branch[1].path = thisNode.path;
+		branch[1].path[next_path] = 1;
+		branch[1].val = thisNode.val+items.get(next_path).value;
+		
+		for (int j = 0; j < 2; j++){
+			branch[j].potentialVal = 0;
+			for (int i = 0; i < branch[j].path.length; i++){
+				if (branch[j].path[i] != 0){
+					if (items.get(i).weight <= branch[j].availableCapacity){
+						branch[j].potentialVal += items.get(i).value;
+					}
+				}
 			}
-			else if (nextNode.path[idx] < 0){
-				if (thisItem.weight <= nextNode.availableCapacity){
-				   nextNode.potentialVal += thisItem.value;
-				}
-				else
-				{
-				   nextNode.path[idx] = 0;
-				}
-		  }
-		 }
-		 nextNode.val = thisNode.val + (nextBranch&0x1) * items.get((nextBranch>>1)).value;
-	}
-	
-	int constraintCheck(BnBNode parent, BnBNode node, int branch){
-		if (node.availableCapacity<=0)
-			return 0;
-		if (parent.branch.size() ==  0){
-			return 1;
 		}
-		else if (parent.branch.size() == 1){
-			return 1;
+		nodes.remove(thisNode);
+		if (branch[0].availableCapacity>=0){
+			nodes.add(branch[0]);
 		}
-		else if ((parent.branch.get(~branch).potentialVal > node.potentialVal)||(parent.branch.get(~branch).val > node.potentialVal)){
-			return 0;
+		if (branch[1].availableCapacity>=0){
+			nodes.add(branch[1]);
 		}
-		else {
-			return 1;
-		}
-			
-	}
-	
+    }
+    
+    BnBNode chooseNextNode(){
+    	BnBNode bestNode;
+    	bestNode = nodes.get(0);
+    	
+    	for (BnBNode node : nodes){
+    		if (node.potentialVal > bestNode.potentialVal){
+    			bestNode = node;
+    		}
+    	}
+    	
+    	if (bestNode.potentialVal == bestNode.val ){
+    		bestNode.optimum = 1;
+    		for (int i = 0; i < bestNode.path.length;i++){
+    			if (bestNode.path[i] == -1){
+    				bestNode.path[i] = 0;
+    			}
+    		}
+    	}
+    	
+    	return bestNode;
+    }
+    
 	BnBNode traverseTree(BnBNode thisNode)
 	{
-		int nextBranch;
-		nextBranch = -1;
-		nextBranch = chooseBranch(thisNode, nextBranch);
-		while (nextBranch >=0)
-		{
-		   BnBNode nextNode = new BnBNode (items.size());
-		   updateNode (thisNode, nextNode, nextBranch);
-		   if (constraintCheck(thisNode,nextNode,nextBranch) != 0) 
-			   nextNode = traverseTree(nextNode);
-		   
-		   thisNode.branch.add(nextNode);
-		   nextBranch = chooseBranch(thisNode, nextBranch);
+		int optimum_reached = 0;
+		
+		while (optimum_reached == 0){
+			int next_path;
+			next_path = chooseBranch(thisNode);
+			if (next_path >=0){
+				iterateOneStep(thisNode,next_path);
+			}
+			thisNode = chooseNextNode();
+			optimum_reached = thisNode.optimum;
 		}
-		if (thisNode.searchState == -1){
-			
-		}
-		else if (thisNode.branch.get(0).availableCapacity < 0 ){
-			thisNode = thisNode.branch.get(1);
-		}
-		else if (thisNode.branch.get(1).availableCapacity < 0 ){
-			thisNode = thisNode.branch.get(0);
-		} 
-		else if (thisNode.branch.get(1).potentialVal > thisNode.branch.get(0).potentialVal){
-			thisNode = thisNode.branch.get(1);
-		}
-		else{
-			thisNode = thisNode.branch.get(0);
-		}
-			
 		return thisNode;
 
 	}
@@ -145,6 +138,7 @@ public class BranchNBondSolver {
 		BnBNode optNode;
 		items = itemList;
 		firstNode = getFirstNode();
+		nodes.add(firstNode);
 		optNode = traverseTree (firstNode);
 		optValue = optNode.val;
 		optVerified = 0;

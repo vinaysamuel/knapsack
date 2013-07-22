@@ -10,11 +10,10 @@ import java.util.ArrayList;
  */
 public class BnBNode {
     int[] path;
-    int searchState;
     int val;
     int availableCapacity;
     int potentialVal;
-    ArrayList <BnBNode> branch;
+    int optimum;
     
     BnBNode(int numItems)
     {
@@ -25,9 +24,8 @@ public class BnBNode {
     		path[numItems] = -1;
     		numItems--;
     	}
-    	searchState = -1;
-    	val = 0; 
-    	branch = new ArrayList <BnBNode> (0);
+    	val = 0;
+    	optimum = 0;
 
     }
     
