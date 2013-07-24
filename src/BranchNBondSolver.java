@@ -64,13 +64,13 @@ public class BranchNBondSolver {
 		//item not picked
 		branch[0] = new BnBNode(items.size());
 		branch[0].availableCapacity = thisNode.availableCapacity;
-		branch[0].path = thisNode.path;
+		branch[0].path = thisNode.path.clone();
 		branch[0].path[next_path] = 0;
 		branch[0].val = thisNode.val;
 		//item picked
 		branch[1] = new BnBNode(items.size());
 		branch[1].availableCapacity = thisNode.availableCapacity - items.get(next_path).weight;
-		branch[1].path = thisNode.path;
+		branch[1].path = thisNode.path.clone();
 		branch[1].path[next_path] = 1;
 		branch[1].val = thisNode.val+items.get(next_path).value;
 		
@@ -78,7 +78,7 @@ public class BranchNBondSolver {
 			branch[j].potentialVal = 0;
 			for (int i = 0; i < branch[j].path.length; i++){
 				if (branch[j].path[i] != 0){
-					if (items.get(i).weight <= branch[j].availableCapacity){
+					if ((items.get(i).weight <= branch[j].availableCapacity)||(i<=next_path)){
 						branch[j].potentialVal += items.get(i).value;
 					}
 				}
