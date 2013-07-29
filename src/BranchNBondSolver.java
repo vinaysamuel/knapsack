@@ -11,7 +11,7 @@ import java.util.ArrayList;
 public class BranchNBondSolver {
 	int optValue;
 	int optVerified = 0;
-	int [] itemsPicked;
+	short[] itemsPicked;
 	int maxCapacity;
 	Items items;
 	ArrayList <BnBNode> nodes;
@@ -19,7 +19,7 @@ public class BranchNBondSolver {
 	BranchNBondSolver(int capacity,int numItems)
 	{
 		maxCapacity = capacity;
-		itemsPicked = new int [numItems];
+		itemsPicked = new short [numItems];
 		nodes = new ArrayList <BnBNode> (0);
 	}
 	

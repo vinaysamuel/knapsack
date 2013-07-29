@@ -7,7 +7,7 @@
  *
  */
 public class BnBNode {
-    int[] path;
+    short [] path;
     int val;
     int availableCapacity;
     int potentialVal;
@@ -15,7 +15,7 @@ public class BnBNode {
     
     BnBNode(int numItems)
     {
-    	path = new int [numItems];
+    	path = new short [numItems];
     	numItems--;
     	while (numItems >= 0)
     	{
