@@ -291,13 +291,13 @@ public class SimplexSolver {
 
 
 	    // test client
-	    
+/*	    
 	    public static void main(String[] args) {
 
 	        try                           { test1();             }
 	        catch (ArithmeticException e) { e.printStackTrace(); }
 	        System.out.println("--------------------------------");
-/*
+
 	        int M = Integer.parseInt(args[0]);
 	        int N = Integer.parseInt(args[1]);
 	        double[] c = new double[N];
@@ -311,7 +311,7 @@ public class SimplexSolver {
 	            for (int j = 0; j < N; j++)
 	                A[i][j] = StdRandom.uniform(100);
 	        SimplexSolver lp = new SimplexSolver(A, b, c);
-	        System.out.println(lp.value());*/
+	        System.out.println(lp.value());
 	    }
-
+*/
 }
