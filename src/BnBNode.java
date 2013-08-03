@@ -15,6 +15,7 @@ public class BnBNode {
     double[][] A;
     double[] b;
     double[] c;
+    SimplexSolver simplexSoln;
     
     BnBNode(int numItems)
     {
@@ -34,12 +35,17 @@ public class BnBNode {
     	A = null;
     	b = null;
     	c = null;
+    	simplexSoln = null;
+    }
+    
+    public void solveSimplex(){
+    	simplexSoln = new SimplexSolver(A,b,c);
     }
     
     public void createMatrix(Items itemList){
     	int count = 0;
     	for(int i = 0; i<path.length;i++){
-    		if (path[i] == -1){
+    		if ((path[i] == -1) && (itemList.get(i).weight <= availableCapacity)){
     	  			count++;
     		}
     	}
@@ -50,12 +56,15 @@ public class BnBNode {
     	count = 0;
     	b[0] = availableCapacity;
     	for(int i = 0; i<path.length;i++){
-    		if (path[i] == -1){
+    		if ((path[i] == -1) && (itemList.get(i).weight <= availableCapacity)){
     			A[0][count] = itemList.get(i).weight;
     			A[count+1][count] = 1;
     			b[count+1] = 1;
-    			c[count] = itemList.get(i).value;
+    			c[count] = -1*itemList.get(i).value;
     			count++;
+    		}
+    		else if ((path[i] == -1) && (itemList.get(i).weight > availableCapacity)){
+    			path[i] = 0;
     		}
     	}
     }

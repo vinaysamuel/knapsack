@@ -6,32 +6,118 @@ public class SimplexBnBSolver extends BranchNBondSolver {
 		// TODO Auto-generated constructor stub
 	}
 	
-	public void updateNode (BnBNode thisNode, SimplexSolver temp){
-		thisNode.potentialVal = temp.value();
-		//loop over path for all !=-1 update the available capacity
-		//		thisNode.availableCapacity =  		
+	public BnBNode chooseNextNode(){
+		BnBNode temp;
+		double[]x;
+		int cnt = 0;
+		
+		temp = super.chooseNextNode();
+		x = temp.simplexSoln.primal();
+		for(int i = 0; i < x.length; i++){
+			if (x[i]!=Math.round(x[i])){
+				return temp;
+			}
+		}
+		//Finding the path that corresponds to x
+		
+		for (int i = 0; i<temp.path.length;i++ ){
+			if (temp.path[i]== -1){
+				temp.path[i]= (short) (x[cnt]);
+				if (temp.path[i] == 1){
+					temp.val += items.get(i).value;
+				}
+				cnt++;
+			}
+		}		
+		temp.optimum = 1;
+		return temp;
+		
+	}
+	int chooseBranch(BnBNode thisNode){
+		int i,cnt;
+		double [] x;
+		double error;
+		int idx;
+		
+		x = thisNode.simplexSoln.primal();
+		error = 1;
+		idx = 0;
+		//if all solutions are integral values optimum is reached
+		for (i = 0; i <x.length;i++){
+			if (x[i]!=Math.round(x[i])){
+				break;
+			}
+			else if (i==(x.length-1)){
+				return -1;
+			}
+		}
+		
+		for (i = 0; i <x.length;i++){
+			if (Math.abs(0.5-x[i]) < error){
+				error = Math.abs(0.5-x[i]);
+				idx = i;
+			}
+		}
+		//Finding the path idx that corresponds to the idx in x
+		cnt = 0;
+		for (i = 0; i<thisNode.path.length;i++ ){
+			if (thisNode.path[i]== -1)
+				cnt++;
+			if (cnt == idx){
+				idx = i;
+				break;
+			}
+				
+		}
+		thisNode.reduceMemory();
+		return idx;
 		
 	}
 
-	void solve(Items itemList)
+	BnBNode getFirstNode()
 	{
-		BnBNode thisNode;
-		SimplexSolver temp;
-		int optimum_reached = 0;
-		thisNode = new BnBNode(itemList.size());
-		thisNode.availableCapacity = maxCapacity;
-		while (optimum_reached == 0){
-			thisNode.createMatrix(itemList);
-			temp = new SimplexSolver(thisNode.A, thisNode.b, thisNode.c);
-			thisNode.reduceMemory();
-		  // update node
-		  // add to nodes
-		  // remove parent node
-		  // check optimum
-		  //if (!optimum_reached){
-		  //	choose next branch
-		  //    
-		}
+		BnBNode firstNode = new BnBNode (items.size());
+		firstNode.availableCapacity = maxCapacity;
+		firstNode.createMatrix(items);
+		firstNode.solveSimplex();
+		firstNode.potentialVal = firstNode.simplexSoln.value();
+		firstNode.val = 0;
+		return firstNode;
 	}
+	
+    void iterateOneStep(BnBNode thisNode, int next_path){
+		BnBNode [] branch;
+		
+		branch = new BnBNode [2];
+	
+		//item not picked
+		branch[0] = new BnBNode(items.size());
+		branch[0].availableCapacity = thisNode.availableCapacity;
+		branch[0].path = thisNode.path.clone();
+		branch[0].path[next_path] = 0;
+		branch[0].val = thisNode.val;
+		branch[0].createMatrix(items);
+		branch[0].solveSimplex();
+		branch[0].potentialVal = branch[0].val+branch[0].simplexSoln.value();
+		
+		//item picked
+		branch[1] = new BnBNode(items.size());
+		branch[1].availableCapacity = thisNode.availableCapacity - items.get(next_path).weight;
+		branch[1].path = thisNode.path.clone();
+		branch[1].path[next_path] = 1;
+		branch[1].val = thisNode.val+items.get(next_path).value;
+		branch[1].createMatrix(items);
+		branch[1].solveSimplex();
+		branch[1].potentialVal = branch[1].val+branch[1].simplexSoln.value();
+		
+		nodes.remove(thisNode);
+		if (branch[0].availableCapacity>=0){
+			nodes.add(branch[0]);
+		}
+		if (branch[1].availableCapacity>=0){
+			nodes.add(branch[1]);
+		}
+    }
+    
 
 }

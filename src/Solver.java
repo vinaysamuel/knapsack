@@ -11,7 +11,7 @@ public class Solver {
     /**
      * The main class
      */
-    public static void temp(String[] args) {
+    public static void main(String[] args) {
         try {
             solve(args);
         } catch (IOException e) {
@@ -24,7 +24,7 @@ public class Solver {
      */
     public static void solve(String[] args) throws IOException {
         String fileName = null;
-        BranchNBondSolver knapSackSolver;
+        SimplexBnBSolver knapSackSolver;
         Items knapSackItems;
         
         // get the temp file name
@@ -55,7 +55,7 @@ public class Solver {
         int items = Integer.parseInt(firstLine[0]);
         int capacity = Integer.parseInt(firstLine[1]);
         
-        knapSackSolver = new BranchNBondSolver(capacity,items);
+        knapSackSolver = new SimplexBnBSolver(capacity,items);
         knapSackItems = new Items();
         
         for(int i=1; i < items+1; i++){
