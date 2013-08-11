@@ -22,6 +22,8 @@ public class SimplexSolver {
 
 	    private int[] basis;    // basis[i] = basic variable corresponding to row i
 	                            // only needed to print out solution, not book
+	    private double [] primal;
+	    private double value;
 
 	    // sets up the simplex tableau
 	    public SimplexSolver(double[][] A, double[] b, double[] c) {
@@ -39,9 +41,15 @@ public class SimplexSolver {
 	        for (int i = 0; i < M; i++) basis[i] = N + i;
 
 	        solve();
-
+	        
+	        primal = primal_soln();
+	        value = value_soln();
 	        // check optimality conditions
 	        assert check(A, b, c);
+	        a = null;
+	        A = null;
+	        b = null;
+	        c = null;
 	    }
 
 	    // run simplex algorithm starting from initial BFS
@@ -111,18 +119,25 @@ public class SimplexSolver {
 	    }
 
 	    // return optimal objective value
-	    public double value() {
+	    public double value_soln() {
 	        return a[M][M+N];
 	    }
-
+	    public double value() {
+	        return value;
+	    }
+	    
 	    // return primal solution vector
-	    public double[] primal() {
+	    public double[] primal_soln() {
 	        double[] x = new double[N];
 	        for (int i = 0; i < M; i++)
 	            if (basis[i] < N) x[basis[i]] = a[i][M+N];
 	        return x;
 	    }
 
+	    public double[] primal() {
+	        return primal;
+	    }
+	    
 	    // return dual solution vector
 	    public double[] dual() {
 	        double[] y = new double[M];

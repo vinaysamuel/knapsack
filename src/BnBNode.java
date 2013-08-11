@@ -31,10 +31,13 @@ public class BnBNode {
 
     }
     
-    public void reduceMemory(){
+    public void deleteMatrix(){
     	A = null;
     	b = null;
     	c = null;
+    }
+    public void reduceMemory(){
+    	deleteMatrix();
     	simplexSoln = null;
     }
     

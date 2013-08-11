@@ -122,6 +122,7 @@ public class BranchNBondSolver {
 		while (optimum_reached == 0){
 			int next_path;
 			next_path = chooseBranch(thisNode);
+//			System.out.println("Path "+thisNode.path+ " Val "+ thisNode.path+ " Potential "+thisNode.potentialVal);
 			if (next_path >=0){
 				iterateOneStep(thisNode,next_path);
 			}

@@ -28,6 +28,7 @@ public class Solver {
         Items knapSackItems;
         
         // get the temp file name
+        //System.out.print(args[0]+"\n");
         for(String arg : args){
             if(arg.startsWith("-file=")){
                 fileName = arg.substring(6);
@@ -54,7 +55,7 @@ public class Solver {
         String[] firstLine = lines.get(0).split("\\s+");
         int items = Integer.parseInt(firstLine[0]);
         int capacity = Integer.parseInt(firstLine[1]);
-        
+      //  System.out.println("Num Items: "+items+" Capacity: "+capacity);
         knapSackSolver = new SimplexBnBSolver(capacity,items);
         knapSackItems = new Items();
         
@@ -65,6 +66,7 @@ public class Solver {
 
           value = Integer.parseInt(parts[0]);
           weight = Integer.parseInt(parts[1]);
+    //      System.out.println(weight+" "+value);
           knapSackItems.addItem(weight,value);
         }
         
